@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LevelUp - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .admin-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #111111 100%);
+            padding: 2rem;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .admin-title {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .admin-content {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .duration-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .duration-btn {
+            padding: 0.5rem 1rem;
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .duration-btn.active {
+            background: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
+        }
+        
+        .time-input-container {
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .time-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .submit-btn {
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 1rem;
+        }
+        
+        .submit-btn:disabled {
+            background: var(--gray-light);
+            cursor: not-allowed;
+        }
+        
+        .account-status {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .status-label {
+            color: var(--text-secondary);
+        }
+        
+        .status-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .status-value.expired {
+            color: var(--danger-color);
+        }
+        
+        .status-value.active {
+            color: var(--success-color);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #000;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">Admin Dashboard</h1>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+        
+        <div class="admin-content">
+            <h2>Set Account Validity</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="adminUsername" class="form-input" placeholder="Enter username">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="adminPassword" class="form-input" placeholder="Enter password">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Valid Date</label>
+                <div class="duration-selector">
+                    <button type="button" class="duration-btn active" data-type="hours">Hours</button>
+                    <button type="button" class="duration-btn" data-type="days">Days</button>
+                    <button type="button" class="duration-btn" data-type="months">Months</button>
+                </div>
+                
+                <div class="time-input-container" id="hoursInput">
+                    <input type="number" id="hoursValue" class="time-input" placeholder="Enter hours (e.g., 24)" min="1" max="744">
+                </div>
+                
+                <div class="time-input-container" id="daysInput">
+                    <input type="number" id="daysValue" class="time-input" placeholder="Enter days" min="1" max="31">
+                </div>
+                
+                <div class="time-input-container" id="monthsInput">
+                    <input type="number" id="monthsValue" class="time-input" placeholder="Enter months" min="1" max="12">
+                </div>
+            </div>
+            
+            <button class="submit-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                <span id="submitText">Send to Database</span>
+            </button>
+            
+            <div class="account-status">
+                <h3>Account Status</h3>
+                <div class="status-item">
+                    <span class="status-label">Username:</span>
+                    <span class="status-value" id="statusUsername">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Valid Until:</span>
+                    <span class="status-value" id="statusValidUntil">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Status:</span>
+                    <span class="status-value" id="statusState">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, signOut, db, setDoc, doc, getDoc, collection, query, where, getDocs, onAuthStateChanged } from './firebase-config.js';
+        
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // User is not signed in, redirect to login
+                window.location.href = 'login.html';
+            } else {
+                // User is signed in, load account data
+                loadAccountData(user.email);
+            }
+        });
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await signOut(auth);
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+        
+        // Duration selector functionality
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        const timeInputs = document.querySelectorAll('.time-input-container');
+        
+        // Show hours input by default
+        document.getElementById('hoursInput').style.display = 'block';
+        
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                durationBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Hide all inputs
+                timeInputs.forEach(input => input.style.display = 'none');
+                
+                // Show the corresponding input
+                const type = this.getAttribute('data-type');
+                document.getElementById(`${type}Input`).style.display = 'block';
+            });
+        });
+        
+        // Submit functionality
+        document.getElementById('submitBtn').addEventListener('click', async function() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            // Determine which duration type is active
+            const activeDuration = document.querySelector('.duration-btn.active').getAttribute('data-type');
+            let durationValue;
+            
+            switch(activeDuration) {
+                case 'hours':
+                    durationValue = document.getElementById('hoursValue').value;
+                    break;
+                case 'days':
+                    durationValue = document.getElementById('daysValue').value;
+                    break;
+                case 'months':
+                    durationValue = document.getElementById('monthsValue').value;
+                    break;
+            }
+            
+            if (!durationValue || durationValue < 1) {
+                alert(`Please enter a valid ${activeDuration} value`);
+                return;
+            }
+            
+            // Calculate expiration date
+            const now = new Date();
+            let expirationDate;
+            
+            switch(activeDuration) {
+                case 'hours':
+                    expirationDate = new Date(now.getTime() + (durationValue * 60 * 60 * 1000));
+                    break;
+                case 'days':
+                    expirationDate = new Date(now.getTime() + (durationValue * 24 * 60 * 60 * 1000));
+                    break;
+                case 'months':
+                    expirationDate = new Date(now.getFullYear(), now.getMonth() + parseInt(durationValue), now.getDate());
+                    break;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.innerHTML = '<div class="loading-spinner"></div> Saving...';
+            
+            try {
+                // Save to Firebase
+                const accountData = {
+                    username: username,
+                    password: password,
+                    expiration: expirationDate.toISOString(),
+                    durationType: activeDuration,
+                    durationValue: parseInt(durationValue),
+                    createdAt: new Date().toISOString(),
+                    createdBy: auth.currentUser.email
+                };
+                
+                // Save to Firestore
+                await setDoc(doc(db, "accounts", username), accountData);
+                
+                // Update status display
+                document.getElementById('statusUsername').textContent = username;
+                document.getElementById('statusValidUntil').textContent = expirationDate.toLocaleString();
+                
+                // Check if account is still valid
+                const nowTime = new Date().getTime();
+                const expTime = new Date(expirationDate).getTime();
+                
+                if (nowTime > expTime) {
+                    document.getElementById('statusState').textContent = 'Expired';
+                    document.getElementById('statusState').className = 'status-value expired';
+                } else {
+                    document.getElementById('statusState').textContent = 'Active';
+                    document.getElementById('statusState').className = 'status-value active';
+                }
+                
+                alert('Account data saved successfully to Firebase!');
+                
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                alert('Error saving data: ' + error.message);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.textContent = 'Send to Database';
+            }
+        });
+        
+        // Load existing account data
+        async function loadAccountData(userEmail) {
+            try {
+                // Query accounts created by current user
+                const q = query(collection(db, "accounts"), where("createdBy", "==", userEmail));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    // Get the first account (you can modify this to show multiple accounts)
+                    const doc = querySnapshot.docs[0];
+                    const data = doc.data();
+                    
+                    document.getElementById('statusUsername').textContent = data.username;
+                    document.getElementById('statusValidUntil').textContent = new Date(data.expiration).toLocaleString();
+                    
+                    // Check if account is still valid
+                    const nowTime = new Date().getTime();
+                    const expTime = new Date(data.expiration).getTime();
+                    
+                    if (nowTime > expTime) {
+                        document.getElementById('statusState').textContent = 'Expired';
+                        document.getElementById('statusState').className = 'status-value expired';
+                    } else {
+                        document.getElementById('statusState').textContent = 'Active';
+                        document.getElementById('statusState').className = 'status-value active';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading account data:', error);
+            }
+        }
+    </script>
+</body>
+</html>
